@@ -8,15 +8,15 @@
 //
 //  Modified in 2024-2025 by Yuri Panchul & Mike Kuskov.
 //
-//  Modified in 2025 by Marat Mestnikov
+//  Modified in 2026 by Marat Mestnikov
 //
 
 `include "sr_cpu.svh"
 
 module sr_alu
 (
-    input        [31:0] srcA,
-    input        [31:0] srcB,
+    input        [31:0] src_a,
+    input        [31:0] src_b,
     input        [ 3:0] oper,
     output              zero,
     output logic [31:0] result
@@ -24,17 +24,17 @@ module sr_alu
 
     always_comb
         case (oper)
-            default   : result =  srcA +   srcB;
-            `ALU_ADD  : result =  srcA +   srcB;
-            `ALU_OR   : result =  srcA |   srcB;
-            `ALU_SRL  : result =  srcA >>  srcB [4:0];
-            `ALU_SLTU : result = (srcA <   srcB) ? 32'd1 : 32'd0;
-            `ALU_SUB  : result =  srcA -   srcB;
-            `ALU_SLL  : result =  srcA <<  srcB [4:0];
-            `ALU_SLT  : result = ($signed(srcA) <  $signed(srcB)) ? 32'd1 : 32'd0;
-            `ALU_XOR  : result =  srcA ^   srcB;
-            `ALU_SRA  : result =  srcA >>> srcB;
-            `ALU_AND  : result =  srcA &   srcB;
+            default   : result =  src_a +   src_b;
+            `ALU_ADD  : result =  src_a +   src_b;
+            `ALU_OR   : result =  src_a |   src_b;
+            `ALU_SRL  : result =  src_a >>  src_b [4:0];
+            `ALU_SLTU : result = (src_a <   src_b) ? 32'd1 : 32'd0;
+            `ALU_SUB  : result =  src_a -   src_b;
+            `ALU_SLL  : result =  src_a <<  src_b [4:0];
+            `ALU_SLT  : result = ($signed(src_a) <  $signed(src_b)) ? 32'd1 : 32'd0;
+            `ALU_XOR  : result =  src_a ^   src_b;
+            `ALU_SRA  : result =  src_a >>> src_b;
+            `ALU_AND  : result =  src_a &   src_b;
         endcase
 
     assign zero = (result == '0);

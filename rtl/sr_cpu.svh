@@ -8,32 +8,46 @@
 //
 //  Modified in 2024-2025 by Yuri Panchul & Mike Kuskov.
 //
-//  Modified in 2025 by Marat Mestnikov
+//  Modified in 2026 by Marat Mestnikov
 //
 
 `ifndef SR_CPU_SVH
 `define SR_CPU_SVH
 
 // Multiplexers (Enums)
+// Opcode
+`define OP_LOAD   7'd3
+`define OP_IMM    7'd19
+`define OP_AUIPC  7'd23
+`define OP_STORE  7'd35
+`define OP_REG    7'd51
+`define OP_LUI    7'd55
+`define OP_BRANCH 7'd99
+`define OP_JALR   7'd103
+`define OP_JUMP   7'd111 // jal
 
 // pcSrc
 `define PC_PLUS4    2'b00
-`define PC_BRANCH   2'b01
-`define PC_JAL      2'b10
-`define PC_JALR     2'b11
+// `define PC_BRANCH   2'b01
+// `define PC_JAL      2'b10
+`define PC_JUMP     2'b01
+`define PC_JALR     2'b10
 // ALU's srcB
-`define ALUB_RD2    3'b000
-`define ALUB_IMM_I  3'b001
-`define ALUB_IMM_J  3'b010
-`define ALUB_IMM_U  3'b011
-`define ALUB_IMM_S  3'b100
+// `define ALUB_RD2    3'b000
+// `define ALUB_IMM_I  3'b001
+// `define ALUB_IMM_J  3'b010
+// `define ALUB_IMM_U  3'b011
+// `define ALUB_IMM_S  3'b100
+`define ALUB_RD2    1'b0
+`define ALUB_IMM    1'b0
 // ALU's srcA
 `define ALUA_RD1    1'b0
 `define ALUA_PC     1'b1
 // wdSrc
 `define WD_ALU      2'b00
 `define WD_PCPLUS4  2'b01 // jal/jar
-`define WD_IMM_U    2'b10 // lui immediate
+// `define WD_IMM_U    2'b10 // lui immediate
+`define WD_IMM      2'b10
 `define WD_MEM      2'b11 // load instr
 // write_byte_en
 `define WBE_NO      2'b00 // no write

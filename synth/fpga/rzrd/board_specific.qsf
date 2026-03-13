@@ -187,7 +187,7 @@ set_location_assignment PIN_11 -to LCD_D[7]
 # set_location_assignment PIN_46  -to SDRAM_D[14]
 # set_location_assignment PIN_44  -to SDRAM_D[15]
 
-set_global_assignment -name LAST_QUARTUS_VERSION "21.1.1 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Standard Edition"
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top

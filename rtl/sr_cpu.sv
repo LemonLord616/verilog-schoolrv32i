@@ -8,7 +8,7 @@
 //
 //  Modified in 2024-2025 by Yuri Panchul & Mike Kuskov.
 //
-//  Modified in 2025 by Marat Mestnikov
+//  Modified in 2026 by Marat Mestnikov
 //
 
 `include "sr_cpu.svh"
@@ -33,100 +33,137 @@ module sr_cpu
     output  [31:0]  debug_reg_data  // debug access reg data
 );
 
-    // ram
-
-    assign raddr = aluResult;
-    assign waddr = aluResult;
-    assign wdata = rd2;
-    logic [ 2:0] loadType;
-    logic [31:0] loadData;
-
-    always_comb
-    begin
-        case (loadType)
-            `LOAD_W  : loadData = rdata;
-            `LOAD_H  : begin
-                loadData [15: 0] = rdata [15: 0];
-                loadData [31:16] = { 16 { rdata [31] } }; // sign extend
-            end
-            `LOAD_B  : begin
-                loadData [ 7: 0] = rdata [ 7: 0];
-                loadData [31: 8] = { 24 { rdata [31] } }; // sign extend
-            end
-            `LOAD_HU : loadData = { 16'b0, rdata[15: 0] }; // zero extend
-            `LOAD_BU : loadData = { 24'b0, rdata[ 7: 0] }; // zero extend
-            default  : loadData = rdata;
-        endcase
-    end
-
-    // control wires
-
-    wire        aluZero;
-    wire  [1:0] pcSrc;
-    wire        regWrite;
-    wire        aluSrcA;
-    wire  [1:0] aluSrcB;
-    wire  [1:0] wdSrc;
-    wire  [3:0] aluControl;
-
     // instruction decode wires
 
-    wire [ 6:0] cmdOp;
+    wire [ 6:0] op;
     wire [ 4:0] rd;
-    wire [ 2:0] cmdF3;
+    wire [ 2:0] funct3;
     wire [ 4:0] rs1;
     wire [ 4:0] rs2;
-    wire [ 6:0] cmdF7;
-    wire [31:0] immI;
-    wire [31:0] immB;
-    wire [31:0] immU;
-    wire [31:0] immJ;
-    wire [31:0] immS;
-
-    // program counter
-
-    logic [31:0] pc;
-    logic [31:0] pcNext;
-    wire [31:0] pcBranch  = pc + immB;
-    wire [31:0] pcPlus4   = pc + 32'd4;
-    wire [31:0] pcJump    = pc + immJ; // least significant bit is decoded as zero in decoder
-    // TODO: recheck logic
-    wire [31:0] pcJumpReg = (rd1 + immI) & ~32'b1; // least significant bit is zero
-
-    always_comb
-    begin
-        unique case (pcSrc)
-            `PC_PLUS4  : pcNext = pcPlus4;
-            `PC_BRANCH : pcNext = pcBranch;
-            `PC_JAL    : pcNext = pcJump;
-            `PC_JALR   : pcNext = pcJumpReg;
-        endcase
-    end
-
-    register_with_rst pc_r (clk, rst, pcNext, pc);
-
-    // program memory access
-
-    assign instr_addr = pc >> 2;
-    wire [31:0] instr = instr_data;
+    wire [ 6:0] funct7;
+    wire [31:0] imm;
+    // wire [31:0] immI;
+    // wire [31:0] immB;
+    // wire [31:0] immU;
+    // wire [31:0] immJ;
+    // wire [31:0] immS;
 
     // instruction decode
 
     sr_decode id
     (
-        .instr      ( instr       ),
-        .cmdOp      ( cmdOp       ),
-        .rd         ( rd          ),
-        .cmdF3      ( cmdF3       ),
-        .rs1        ( rs1         ),
-        .rs2        ( rs2         ),
-        .cmdF7      ( cmdF7       ),
-        .immI       ( immI        ),
-        .immB       ( immB        ),
-        .immU       ( immU        ),
-        .immJ       ( immJ        ),
-        .immS       ( immS        )
+        .instr   ( instr  ),
+        .op      ( op     ),
+        .rd      ( rd     ),
+        .funct3  ( funct3 ),
+        .rs1     ( rs1    ),
+        .rs2     ( rs2    ),
+        .funct7  ( funct7 ),
+        .imm     ( imm    )
     );
+
+    // control wires
+
+    wire        alu_zero;
+    wire  [1:0] pc_src;
+    wire        reg_write;
+    wire        alu_src_a;
+    wire        alu_src_b;
+    wire  [1:0] wd_src;
+    wire  [3:0] alu_control;
+
+    // control
+
+    sr_control sm_control
+    (
+        .op             ( op            ),
+        .funct3         ( funct3        ),
+        .funct7         ( funct7        ),
+        .alu_zero       ( alu_zero      ),
+        .pc_src         ( pc_src        ),
+        .reg_write      ( reg_write     ),
+        .write_byte_en  ( write_byte_en ),
+        .alu_src_a      ( alu_src_a     ),
+        .alu_src_b      ( alu_src_b     ),
+        .wd_src         ( wd_src        ),
+        .alu_control    ( alu_control   ),
+        .load_type      ( load_type     ),
+        .invalid_instr  ( invalid_instr )
+    );
+
+    // alu
+
+    wire  [31:0] alu_result;
+    wire  [31:0] src_a = alu_src_a == `ALUA_RD1 ? rd1 : pc;
+    logic [31:0] src_b;
+
+    always_comb
+    begin
+        unique case (alu_src_b)
+            `ALUB_RD2 : src_b = rd2;
+            `ALUB_IMM : src_b = imm;
+        endcase
+    end
+
+    sr_alu alu
+    (
+        .src_a      ( src_a        ),
+        .src_b      ( src_b        ),
+        .oper       ( alu_control  ),
+        .zero       ( alu_zero     ),
+        .result     ( alu_result   )
+    );
+
+    // ram
+
+    assign raddr = alu_result;
+    assign waddr = alu_result;
+    assign wdata = rd2;
+    logic [ 2:0] load_type;
+    logic [31:0] load_data;
+
+    always_comb
+    begin
+        case (load_type)
+            `LOAD_W  : load_data = rdata;
+            `LOAD_H  : begin
+                load_data [15: 0] = rdata [15: 0];
+                load_data [31:16] = { 16 { rdata [31] } }; // sign extend
+            end
+            `LOAD_B  : begin
+                load_data [ 7: 0] = rdata [ 7: 0];
+                load_data [31: 8] = { 24 { rdata [31] } }; // sign extend
+            end
+            `LOAD_HU : load_data = { 16'b0, rdata[15: 0] }; // zero extend
+            `LOAD_BU : load_data = { 24'b0, rdata[ 7: 0] }; // zero extend
+            default  : load_data = rdata;
+        endcase
+    end
+
+    // program counter
+
+    logic [31:0] pc;
+    logic [31:0] pc_next;
+    wire [31:0] pc_plus_4  = pc + 32'd4;
+    wire [31:0] pc_jump    = pc + imm; // least significant bit is decoded as zero in decoder
+    // TODO: recheck logic
+    wire [31:0] pc_jump_reg = (rd1 + imm) & ~32'b1; // least significant bit is zero
+
+    always_comb
+    begin
+        unique case (pc_src)
+            `PC_PLUS4 : pc_next = pc_plus_4;
+            `PC_JUMP  : pc_next = pc_jump;
+            `PC_JALR  : pc_next = pc_jump_reg;
+        endcase
+    end
+
+    register_with_rst pc_r (clk, rst, pc_next, pc);
+
+    // program memory access
+
+    assign instr_addr = pc >> 2;
+    wire [31:0] instr = instr_data;
 
     // register file
 
@@ -137,11 +174,11 @@ module sr_cpu
 
     always_comb
     begin
-        unique case (wdSrc)
-            `WD_ALU     : wd3 = aluResult;
-            `WD_IMM_U   : wd3 = immU;
-            `WD_PCPLUS4 : wd3 = pcPlus4;
-            `WD_MEM     : wd3 = loadData;
+        unique case (wd_src)
+            `WD_ALU     : wd3 = alu_result;
+            `WD_IMM     : wd3 = imm;
+            `WD_PCPLUS4 : wd3 = pc_plus_4;
+            `WD_MEM     : wd3 = load_data;
         endcase
     end
 
@@ -154,55 +191,10 @@ module sr_cpu
         .rd1        ( rd1            ),
         .rd2        ( rd2            ),
         .wd3        ( wd3            ),
-        .we3        ( regWrite       ),
+        .we3        ( reg_write      ),
 
         .dbg_addr   ( debug_reg_addr ),
         .dbg_data   ( debug_rd       )
-    );
-
-    // alu
-
-    wire  [31:0] aluResult;
-    wire  [31:0] srcA = aluSrcA == `ALUA_RD1 ? rd1 : pc;
-    logic [31:0] srcB;
-
-    always_comb
-    begin
-        unique case (aluSrcB)
-            `ALUB_RD2   : srcB = rd2;
-            `ALUB_IMM_I : srcB = immI;
-            `ALUB_IMM_J : srcB = immJ;
-            `ALUB_IMM_U : srcB = immU;
-            `ALUB_IMM_S : srcB = immS;
-        endcase
-    end
-
-    sr_alu alu
-    (
-        .srcA       ( srcA         ),
-        .srcB       ( srcB        ),
-        .oper       ( aluControl  ),
-        .zero       ( aluZero     ),
-        .result     ( aluResult   )
-    );
-
-    // control
-
-    sr_control sm_control
-    (
-        .cmdOp         ( cmdOp         ),
-        .cmdF3         ( cmdF3         ),
-        .cmdF7         ( cmdF7         ),
-        .aluZero       ( aluZero       ),
-        .pcSrc         ( pcSrc         ),
-        .regWrite      ( regWrite      ),
-        .write_byte_en ( write_byte_en ),
-        .aluSrcA       ( aluSrcA       ),
-        .aluSrcB       ( aluSrcB       ),
-        .wdSrc         ( wdSrc         ),
-        .aluControl    ( aluControl    ),
-        .loadType      ( loadType      ),
-        .invalid_instr ( invalid_instr )
     );
 
     // debug register access

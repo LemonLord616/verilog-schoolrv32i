@@ -41,6 +41,8 @@ module sr_decode
         unique case (op)
             `OP_LOAD, `OP_IMM, `OP_JALR: 
                 imm = { {20{instr[31]}}, instr[31:20] };
+                // essentially the same as
+                // imm = { {21{instr[31]}}, instr[30:20] };
             `OP_AUIPC, `OP_LUI:
                 imm = { instr[31:12], 12'b0 };
             `OP_STORE:

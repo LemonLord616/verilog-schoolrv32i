@@ -52,7 +52,7 @@ sim-clean:
 # ------------------------------------------------------------------------------
 
 CABLE_NAME   ?= "USB-Blaster"
-PROJECT_DIR  ?= ./synth/fpga/rzrd
+PROJECT_DIR  ?= ./synth/fpga/de10_lite
 PROJECT_NAME ?= "board_specific"
 
 QUARTUS     := cd $(PROJECT_DIR) && quartus

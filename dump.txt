@@ -1,0 +1,183 @@
+rm -rf "./sim/icarus/output_files"
+mkdir "./sim/icarus/output_files"
+iverilog -g2012 -o "./sim/icarus/output_files"/sim.out -I ./rtl -I include/basics-graphics-music/labs/common \
+	include/basics-graphics-music/labs/common/*sv ./rtl/*.sv \
+	./sim/icarus/tb.sv # >> "./sim/icarus/output_files"/log.txt 2>&1
+java -jar ./scripts/rars1_6.jar nc a ae1 dump .text HexText ./rtl/program.hex ./rtl/program.s
+vvp "./sim/icarus/output_files"/sim.out # >> "./sim/icarus/output_files"/log.txt 2>&1
+WARNING: ./rtl/instruction_rom.sv:24: $readmemh(./rtl/program.hex): Not enough words in the file for the requested range [0:63].
+WARNING: ./rtl/instruction_rom.sv:24: $readmemh(./rtl/program.hex): Not enough words in the file for the requested range [0:1023].
+VCD info: dumpfile ./sim/icarus/output_files/dump.vcd opened for output.
+VCD warning: $dumpvars: Package ($unit) is not dumpable with VCD.
+WARNING: ./rtl/sr_cpu.sv:154: value is unhandled for priority or unique case statement
+         Time: 0  Scope: lab_top.cpu
+WARNING: ./rtl/sr_cpu.sv:154: value is unhandled for priority or unique case statement
+         Time: 0  Scope: tb.cpu
+WARNING: ./rtl/sr_cpu.sv:178: value is unhandled for priority or unique case statement
+         Time: 0  Scope: tb.cpu
+WARNING: ./rtl/sr_cpu.sv:154: value is unhandled for priority or unique case statement
+         Time: 0  Scope: tb.cpu
+WARNING: ./rtl/sr_cpu.sv:102: value is unhandled for priority or unique case statement
+         Time: 0  Scope: tb.cpu
+WARNING: ./rtl/sr_cpu.sv:178: value is unhandled for priority or unique case statement
+         Time: 0  Scope: lab_top.cpu
+WARNING: ./rtl/sr_cpu.sv:154: value is unhandled for priority or unique case statement
+         Time: 0  Scope: lab_top.cpu
+WARNING: ./rtl/sr_cpu.sv:102: value is unhandled for priority or unique case statement
+         Time: 0  Scope: lab_top.cpu
+cycle     0     Xxxxxxxx         
+cycle     1                      
+cycle     2 rst                  
+cycle     3 rst 00000000         
+cycle     4                      
+cycle     5     00000001         
+cycle     6     00000002         
+cycle     7     00000003         
+cycle     8     00000004         
+cycle     9     00000005         
+cycle    10     00000006         
+cycle    11     00000007         
+cycle    12     00000008         
+cycle    13     00000009         
+cycle    14     0000000a         
+cycle    15     0000000b         
+cycle    16     0000000c         
+cycle    17     0000000d         
+cycle    18     0000000e         
+cycle    19     0000000f         
+cycle    20     00000010         
+cycle    21     00000011         
+cycle    22     00000012         
+cycle    23     00000014         
+cycle    24     00000015 00000000
+cycle    25     00000016         
+cycle    26     00000017         
+cycle    27     00000018 00000001
+cycle    28     00000019         
+cycle    29     00000016         
+cycle    30     00000017         
+cycle    31     00000018         
+cycle    32     00000019         
+cycle    33     00000016         
+cycle    34     00000017         
+cycle    35     00000018 00000002
+cycle    36     00000019         
+cycle    37     00000016         
+cycle    38     00000017         
+cycle    39     00000018 00000003
+cycle    40     00000019         
+cycle    41     00000016         
+cycle    42     00000017         
+cycle    43     00000018 00000005
+cycle    44     00000019         
+cycle    45     00000016         
+cycle    46     00000017         
+cycle    47     00000018 00000008
+cycle    48     00000019         
+cycle    49     00000016         
+cycle    50     00000017         
+cycle    51     00000018 0000000d
+cycle    52     00000019         
+cycle    53     00000016         
+cycle    54     00000017         
+cycle    55     00000018 00000015
+cycle    56     00000019         
+cycle    57     00000016         
+cycle    58     00000017         
+cycle    59     00000018 00000022
+cycle    60     00000019         
+cycle    61     00000016         
+cycle    62     00000017         
+cycle    63     00000018 00000037
+cycle    64     00000019         
+cycle    65     00000016         
+cycle    66     00000017         
+cycle    67     00000018 00000059
+cycle    68     00000019         
+cycle    69     00000016         
+cycle    70     00000017         
+cycle    71     00000018 00000090
+cycle    72     00000019         
+cycle    73     00000016         
+cycle    74     00000017         
+cycle    75     00000018 000000e9
+cycle    76     00000019         
+cycle    77     00000016         
+cycle    78     00000017         
+cycle    79     00000018 00000179
+cycle    80     00000019         
+cycle    81     00000016         
+cycle    82     00000017         
+cycle    83     00000018 00000262
+cycle    84     00000019         
+cycle    85     00000016         
+cycle    86     00000017         
+cycle    87     00000018 000003db
+cycle    88     00000019         
+cycle    89     00000016         
+cycle    90     00000017         
+cycle    91     00000018 0000063d
+cycle    92     00000019         
+cycle    93     00000016         
+cycle    94     00000017         
+cycle    95     00000018 00000a18
+cycle    96     00000019         
+cycle    97     00000016         
+cycle    98     00000017         
+cycle    99     00000018 00001055
+cycle   100     00000019         
+cycle   101     00000016         
+cycle   102     00000017         
+cycle   103     00000018 00001a6d
+cycle   104     00000019         
+cycle   105     00000016         
+cycle   106     00000017         
+cycle   107     00000018 00002ac2
+cycle   108     00000019         
+cycle   109     00000016         
+cycle   110     00000017         
+cycle   111     00000018 0000452f
+cycle   112     00000019         
+cycle   113     00000016         
+cycle   114     00000017         
+cycle   115     00000018 00006ff1
+cycle   116     00000019         
+cycle   117     00000016         
+cycle   118     00000017         
+cycle   119     00000018 0000b520
+cycle   120     00000019         
+cycle   121     00000016         
+cycle   122     00000017         
+cycle   123     00000018 00012511
+cycle   124     00000019         
+cycle   125     00000016         
+cycle   126     00000017         
+cycle   127     00000018 0001da31
+cycle   128     00000019         
+cycle   129     00000016         
+cycle   130     00000017         
+cycle   131     00000018 0002ff42
+cycle   132     00000019         
+cycle   133     00000016         
+cycle   134     00000017         
+cycle   135     00000018 0004d973
+cycle   136     00000019         
+cycle   137     00000016         
+cycle   138     00000017         
+cycle   139     00000018 0007d8b5
+cycle   140     00000019         
+cycle   141     00000016         
+cycle   142     00000017         
+cycle   143     00000018 000cb228
+cycle   144     00000019         
+cycle   145     00000016         
+cycle   146     00000017         
+cycle   147     00000018 00148add
+cycle   148     00000019         
+cycle   149     00000016         
+cycle   150     00000017         
+cycle   151     00000018 00213d05
+./sim/icarus/tb.sv PASS
+./sim/icarus/tb.sv:109: $finish called at 1515000 (1ps)
+
+Final registers state:

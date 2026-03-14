@@ -145,16 +145,17 @@ module sr_cpu
     logic [31:0] pc;
     logic [31:0] pc_next;
     wire [31:0] pc_plus_4  = pc + 32'd4;
-    wire [31:0] pc_jump    = pc + imm; // least significant bit is decoded as zero in decoder
+    wire [31:0] pc_cond    = pc + imm; // least significant bit is decoded as zero in decoder
     // TODO: recheck logic
     wire [31:0] pc_jump_reg = (rd1 + imm) & ~32'b1; // least significant bit is zero
 
     always_comb
     begin
         unique case (pc_src)
-            `PC_PLUS4 : pc_next = pc_plus_4;
-            `PC_JUMP  : pc_next = pc_jump;
-            `PC_JALR  : pc_next = pc_jump_reg;
+            `PC_PLUS4  : pc_next = pc_plus_4;
+            `PC_BRANCH : pc_next = pc_cond;
+            `PC_JAL    : pc_next = pc_cond;
+            `PC_JALR   : pc_next = pc_jump_reg;
         endcase
     end
 

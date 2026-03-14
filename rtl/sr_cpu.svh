@@ -28,10 +28,9 @@
 
 // pcSrc
 `define PC_PLUS4    2'b00
-// `define PC_BRANCH   2'b01
-// `define PC_JAL      2'b10
-`define PC_JUMP     2'b01
-`define PC_JALR     2'b10
+`define PC_BRANCH   2'b01
+`define PC_JAL      2'b10
+`define PC_JALR     2'b11
 // ALU's srcB
 // `define ALUB_RD2    3'b000
 // `define ALUB_IMM_I  3'b001
@@ -39,7 +38,7 @@
 // `define ALUB_IMM_U  3'b011
 // `define ALUB_IMM_S  3'b100
 `define ALUB_RD2    1'b0
-`define ALUB_IMM    1'b0
+`define ALUB_IMM    1'b1
 // ALU's srcA
 `define ALUA_RD1    1'b0
 `define ALUA_PC     1'b1

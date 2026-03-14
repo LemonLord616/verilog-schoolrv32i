@@ -38,11 +38,11 @@ module sr_control
     always_comb
     begin
         if (jump)
-            pc_src = `PC_JUMP;
+            pc_src = `PC_JAL;
         else if (jump_reg)
             pc_src = `PC_JALR;
         else if (branch & (alu_zero == cond_zero))
-            pc_src = `PC_JUMP;
+            pc_src = `PC_BRANCH;
         else
             pc_src = `PC_PLUS4;
     end

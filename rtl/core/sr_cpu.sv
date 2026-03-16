@@ -41,11 +41,6 @@ module sr_cpu
     wire [ 4:0] rs2;
     wire [ 6:0] funct7;
     wire [31:0] imm;
-    // wire [31:0] immI;
-    // wire [31:0] immB;
-    // wire [31:0] immU;
-    // wire [31:0] immJ;
-    // wire [31:0] immS;
 
     // instruction decode
 
@@ -63,13 +58,14 @@ module sr_cpu
 
     // control wires
 
-    wire        alu_zero;
-    wire  [1:0] pc_src;
-    wire        reg_write;
-    wire        alu_src_a;
-    wire        alu_src_b;
-    wire  [1:0] wd_src;
-    wire  [3:0] alu_control;
+    wire       alu_zero;
+    wire [1:0] pc_src;
+    wire       reg_write;
+    wire       alu_src_a;
+    wire       alu_src_b;
+    wire [1:0] wd_src;
+    wire [3:0] alu_control;
+    wire [2:0] load_type;
 
     // control
 
@@ -92,17 +88,9 @@ module sr_cpu
 
     // alu
 
-    wire  [31:0] alu_result;
-    wire  [31:0] src_a = alu_src_a == `ALUA_RD1 ? rd1 : pc;
-    logic [31:0] src_b;
-
-    always_comb
-    begin
-        unique case (alu_src_b)
-            `ALUB_RD2 : src_b = rd2;
-            `ALUB_IMM : src_b = imm;
-        endcase
-    end
+    wire [31:0] alu_result;
+    wire [31:0] src_a = alu_src_a == `ALUA_RD1 ? rd1 : pc;
+    wire [31:0] src_b = alu_src_b == `ALUB_RD2 ? rd2 : imm;
 
     sr_alu alu
     (
@@ -117,45 +105,31 @@ module sr_cpu
 
     assign addr = alu_result;
     assign wdata = rd2;
-    logic [ 2:0] load_type;
-    logic [31:0] load_data;
+    wire [31:0] load_data;
 
-    always_comb
-    begin
-        case (load_type)
-            `LOAD_W  : load_data = rdata;
-            `LOAD_H  : begin
-                load_data [15: 0] = rdata [15: 0];
-                load_data [31:16] = { 16 { rdata [31] } }; // sign extend
-            end
-            `LOAD_B  : begin
-                load_data [ 7: 0] = rdata [ 7: 0];
-                load_data [31: 8] = { 24 { rdata [31] } }; // sign extend
-            end
-            `LOAD_HU : load_data = { 16'b0, rdata[15: 0] }; // zero extend
-            `LOAD_BU : load_data = { 24'b0, rdata[ 7: 0] }; // zero extend
-            default  : load_data = rdata;
-        endcase
-    end
-
+    assign load_data =
+        (load_type == `LOAD_W) ? rdata :
+        (load_type == `LOAD_H) ? { {16{rdata[31]}}, rdata[15: 0] } :
+        (load_type == `LOAD_B) ? { {24{rdata[31]}}, rdata[ 7: 0] } :
+        (load_type == `LOAD_HU) ? { 16'b0, rdata[15: 0] } :
+        (load_type == `LOAD_BU) ? { 24'b0, rdata[ 7: 0] } :
+        {32{1'bx}};
+        
     // program counter
 
-    logic [31:0] pc;
-    logic [31:0] pc_next;
+    wire [31:0] pc;
+    wire [31:0] pc_next;
     wire [31:0] pc_plus_4  = pc + 32'd4;
     wire [31:0] pc_cond    = pc + imm; // least significant bit is decoded as zero in decoder
     // TODO: recheck logic
     wire [31:0] pc_jump_reg = (rd1 + imm) & ~32'b1; // least significant bit is zero
 
-    always_comb
-    begin
-        unique case (pc_src)
-            `PC_PLUS4  : pc_next = pc_plus_4;
-            `PC_BRANCH : pc_next = pc_cond;
-            `PC_JAL    : pc_next = pc_cond;
-            `PC_JALR   : pc_next = pc_jump_reg;
-        endcase
-    end
+    assign pc_next =
+        (pc_src == `PC_PLUS4 ) ? pc_plus_4   :
+        (pc_src == `PC_BRANCH) ? pc_cond     :
+        (pc_src == `PC_JAL   ) ? pc_cond     :
+        (pc_src == `PC_JALR  ) ? pc_jump_reg :
+        {32{1'bx}};
 
     register_with_rst pc_r (clk, rst, pc_next, pc);
 
@@ -169,17 +143,14 @@ module sr_cpu
     wire [31:0] debug_rd;
     wire [31:0] rd1;
     wire [31:0] rd2;
-    logic [31:0] wd3;
+    wire [31:0] wd3;
 
-    always_comb
-    begin
-        unique case (wd_src)
-            `WD_ALU     : wd3 = alu_result;
-            `WD_IMM     : wd3 = imm;
-            `WD_PCPLUS4 : wd3 = pc_plus_4;
-            `WD_MEM     : wd3 = load_data;
-        endcase
-    end
+    assign wd3 =
+        (wd_src == `WD_ALU    ) ? alu_result :
+        (wd_src == `WD_IMM    ) ? imm        :
+        (wd_src == `WD_PCPLUS4) ? pc_plus_4  :
+        (wd_src == `WD_MEM    ) ? load_data  :
+        {32{1'bx}};
 
     sr_register_file rf
     (

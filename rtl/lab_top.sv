@@ -59,7 +59,7 @@ module lab_top
 
     //------------------------------------------------------------------------
 
-       assign led        = '0;
+       // assign led        = '0;
     // assign abcdefgh   = '0;
     // assign digit      = '0;
        assign red        = '0;
@@ -101,35 +101,29 @@ module lab_top
         .debug_reg_data ( regData )
     );
     
-    wire [ 1:0] rd_sel;
-    wire we_mem; // ram
-    wire we_1, we_2, we_3; // devices
+    wire [1:0] sel;
+    wire [1:0] we_mem; // ram
+    wire [1:0] we_1, we_2; // devices
+
     wire [31:0] rdata_mem; // ram
-    wire [31:0] rdata_1, rdata_2, rdata_3; // devices
+    wire [31:0] rdata_1, rdata_2; // devices
+
+    assign rdata_1 = {32{1'b1}}; // leds do not return anything
     
-    // placeholder TODO: remove
-    assign rdata_1 = rdata;
-    assign rdata_2 = rdata;
-    assign rdata_3 = rdata;
-    
-    always_comb begin
-        case (rd_sel)
-            `RD_MEM: rdata = rdata_mem;
-            `RD_1: rdata = rdata_1;
-            `RD_2: rdata = rdata_2;
-            `RD_3: rdata = rdata_3;
-        endcase
-    end
+    assign rdata =
+        (sel == `SEL_MEM ) ? rdata_mem :
+        (sel == `SEL_DEV1) ? rdata_1 :
+        (sel == `SEL_DEV2) ? rdata_2 :
+        {32{1'b1}};
     
     address_decoder addr_decoder
     (
-        .mem_write(mem_write),
-        .addr(addr),
-        .rd_sel(rd_sel),
-        .we_mem(we_mem),
-        .we_1(we_1),
-        .we_2(we_2),
-        .we_3(we_3)
+        .mem_write ( mem_write ),
+        .addr      ( addr      ),
+        .sel       ( sel       ),
+        .we_mem    ( we_mem    ),
+        .we_1      ( we_1      ),
+        .we_2      ( we_2      )
     );
 
     instruction_rom # (.SIZE (64)) rom
@@ -145,6 +139,27 @@ module lab_top
         .addr          ( addr      ),
         .rdata         ( rdata_mem ),
         .wdata         ( wdata     )
+    );
+    
+    leds # (.w_led (w_led)) leds
+    (
+        .clk          ( clk   ),
+        .addr         ( addr  ),
+        .write_enable ( we_1  ),
+        .wdata        ( wdata ) ,
+    
+        .led          ( led   ),
+        .invalid_addr ()
+    );
+    
+    switches # (.w_sw (w_sw)) switches
+    (
+        .clk   ( clk     ),
+        .addr  ( addr    ),
+        .rdata ( rdata_2 ),
+
+        .sw    ( sw      ),
+        .invalid_addr ()
     );
 
     //------------------------------------------------------------------------

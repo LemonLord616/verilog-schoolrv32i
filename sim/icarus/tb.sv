@@ -20,9 +20,8 @@ module tb;
     logic [ 4:0] regAddr;  // debug access reg address
     wire  [31:0] regData;  // debug access reg data
 
-    logic [ 1:0] write_byte_en;
-    logic [31:0] raddr;
-    logic [31:0] waddr;
+    logic [ 1:0] mem_write;
+    logic [31:0] addr;
     logic [31:0] rdata;
     logic [31:0] wdata;
 
@@ -35,9 +34,8 @@ module tb;
         .instr_data     ( imData  ),
         .invalid_instr  (         ),
 
-        .write_byte_en  ( write_byte_en ),
-        .raddr          ( raddr   ),
-        .waddr          ( waddr   ),
+        .mem_write      ( mem_write ),
+        .addr           ( addr   ),
         .rdata          ( rdata   ),
         .wdata          ( wdata   ),
 
@@ -53,12 +51,11 @@ module tb;
 
     data_ram # (.SIZE (1024)) i_ram
     (
-        .clk           ( clk ),
-        .write_byte_en ( write_byte_en ),
-        .raddr         ( raddr ),
-        .waddr         ( waddr ),
-        .rdata         ( rdata ),
-        .wdata         ( wdata )
+        .clk          ( clk ),
+        .mem_write    ( mem_write ),
+        .addr         ( addr ),
+        .rdata        ( rdata ),
+        .wdata        ( wdata )
     );
 
     //------------------------------------------------------------------------

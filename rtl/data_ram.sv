@@ -11,7 +11,7 @@
 //  Modified in 2025 by Marat Mestnikov
 //
 
-`include "core/sr_cpu.svh"
+`include "sr_cpu.svh"
 
 //
 // Keep in mind that testbench will not allocate much memory

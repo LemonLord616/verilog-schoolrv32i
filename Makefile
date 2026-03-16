@@ -37,8 +37,8 @@ $(SIM_OUT_DIR):
 	mkdir $(SIM_OUT_DIR)
 
 sim-build: $(SIM_OUT_DIR)
-	iverilog -g2012 -o $(SIM_OUT_DIR)/sim.out -I ./rtl -I include/basics-graphics-music/labs/common \
-		include/basics-graphics-music/labs/common/*sv ./rtl/*.sv ./rtl/core/*.sv \
+	iverilog -g2012 -o $(SIM_OUT_DIR)/sim.out -I ./rtl/include -I include/basics-graphics-music/labs/common \
+		include/basics-graphics-music/labs/common/*sv ./rtl/core/*.sv ./rtl/data_ram.sv ./rtl/instruction_rom.sv \
 		./sim/icarus/tb.sv # >> $(SIM_OUT_DIR)/log.txt 2>&1
 
 sim-run: sim-build gen-asm

@@ -21,10 +21,9 @@ module sr_cpu
     output  [31:0]  instr_addr,        // instruction memory address
     input   [31:0]  instr_data,        // instruction memory data
 
-    output  [ 1:0]  write_byte_en,     // write data in ram on write_byte_en=1
-    output  [31:0]  raddr,             // read ram address
+    output  [ 1:0]  mem_write,         // data write on mem_write (see sr_cpu.svh MW_... constants)
+    output  [31:0]  addr,              // r/w ram address
     input   [31:0]  rdata,             // read ram data
-    output  [31:0]  waddr,             // write ram address
     output  [31:0]  wdata,             // write ram data
 
     output          invalid_instr,
@@ -74,7 +73,7 @@ module sr_cpu
 
     // control
 
-    sr_control sm_control
+    sr_control control
     (
         .op             ( op            ),
         .funct3         ( funct3        ),
@@ -82,7 +81,7 @@ module sr_cpu
         .alu_zero       ( alu_zero      ),
         .pc_src         ( pc_src        ),
         .reg_write      ( reg_write     ),
-        .write_byte_en  ( write_byte_en ),
+        .mem_write      ( mem_write ),
         .alu_src_a      ( alu_src_a     ),
         .alu_src_b      ( alu_src_b     ),
         .wd_src         ( wd_src        ),
@@ -116,8 +115,7 @@ module sr_cpu
 
     // ram
 
-    assign raddr = alu_result;
-    assign waddr = alu_result;
+    assign addr = alu_result;
     assign wdata = rd2;
     logic [ 2:0] load_type;
     logic [31:0] load_data;

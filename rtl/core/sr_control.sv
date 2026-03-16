@@ -22,7 +22,7 @@ module sr_control
 
     output logic [ 1:0] pc_src,
     output logic        reg_write,
-    output logic [ 1:0] write_byte_en,
+    output logic [ 1:0] mem_write, // data write on mem_write (see sr_cpu.svh MW_... constants)
     output logic        alu_src_a,
     output logic        alu_src_b,
     output logic [ 1:0] wd_src,
@@ -59,7 +59,7 @@ module sr_control
         wd_src        = `WD_ALU;
         alu_control   = `ALU_ADD;
         load_type     = `LOAD_W;
-        write_byte_en = `WBE_NO;
+        mem_write = `MW_NO;
         invalid_instr = 1'b0;
 
         casez ({ funct7, funct3, op })
@@ -108,7 +108,7 @@ module sr_control
             { `RVF7_ANY,  `RVF3_LW,   `RVOP_LW    } : begin reg_write = 1'b1; wd_src = `WD_MEM; alu_src_b = `ALUB_IMM; load_type = `LOAD_W;  end
             { `RVF7_ANY,  `RVF3_LBU,  `RVOP_LBU   } : begin reg_write = 1'b1; wd_src = `WD_MEM; alu_src_b = `ALUB_IMM; load_type = `LOAD_BU; end
             { `RVF7_ANY,  `RVF3_LHU,  `RVOP_LHU   } : begin reg_write = 1'b1; wd_src = `WD_MEM; alu_src_b = `ALUB_IMM; load_type = `LOAD_HU; end
-            { `RVF7_ANY,  `RVF3_SW,   `RVOP_SW    } : begin write_byte_en = `WBE_W; alu_src_b = `ALUB_IMM; end
+            { `RVF7_ANY,  `RVF3_SW,   `RVOP_SW    } : begin mem_write = `MW_W; alu_src_b = `ALUB_IMM; end
 
             { `RVF7_ANY,  `RVF3_ANY,  `RVOP_ANY   } : begin invalid_instr = 1'b1; end
         endcase

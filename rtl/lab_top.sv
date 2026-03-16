@@ -1,3 +1,5 @@
+`include "lab_top.svh"
+
 module lab_top
 # (
     parameter  clk_mhz       = 50,
@@ -75,11 +77,10 @@ module lab_top
     wire [31:0] imData;   // instruction memory data
 
     // ram
-    wire [ 1:0] write_byte_en; // data write on write_byte_en=1
-    wire [31:0] raddr;    // read data address
-    wire [31:0] rdata;    // read data 
-    wire [31:0] wdata;    // write data
-    wire [31:0] waddr;    // write data address
+    wire [ 1:0] mem_write; // data write on mem_write (see sr_cpu.svh MW_... constants)
+    wire [31:0] addr;      // r/w data address
+    wire [31:0] rdata;     // read data 
+    wire [31:0] wdata;     // write data
 
     sr_cpu cpu
     (
@@ -89,16 +90,46 @@ module lab_top
         .instr_addr     ( imAddr ),
         .instr_data     ( imData ),
 
-        .raddr          ( raddr  ),
+        .addr           ( addr   ),
         .rdata          ( rdata  ),
-        .waddr          ( waddr  ),
         .wdata          ( wdata  ),
-        .write_byte_en  ( write_byte_en ),
+        .mem_write      ( mem_write ),
         
         .invalid_instr  (  ),
 
         .debug_reg_addr ( regAddr ),
         .debug_reg_data ( regData )
+    );
+    
+    wire [ 1:0] rd_sel;
+    wire we_mem; // ram
+    wire we_1, we_2, we_3; // devices
+    wire [31:0] rdata_mem; // ram
+    wire [31:0] rdata_1, rdata_2, rdata_3; // devices
+    
+    // placeholder TODO: remove
+    assign rdata_1 = rdata;
+    assign rdata_2 = rdata;
+    assign rdata_3 = rdata;
+    
+    always_comb begin
+        case (rd_sel)
+            `RD_MEM: rdata = rdata_mem;
+            `RD_1: rdata = rdata_1;
+            `RD_2: rdata = rdata_2;
+            `RD_3: rdata = rdata_3;
+        endcase
+    end
+    
+    address_decoder addr_decoder
+    (
+        .mem_write(mem_write),
+        .addr(addr),
+        .rd_sel(rd_sel),
+        .we_mem(we_mem),
+        .we_1(we_1),
+        .we_2(we_2),
+        .we_3(we_3)
     );
 
     instruction_rom # (.SIZE (64)) rom
@@ -109,12 +140,11 @@ module lab_top
 
     data_ram # (.SIZE (64)) ram
     (
-        .clk           ( clk      ),
-        .write_byte_en ( write_byte_en ),
-        .raddr         ( raddr    ),
-        .rdata         ( rdata    ),
-        .waddr         ( waddr    ),
-        .wdata         ( wdata    )
+        .clk           ( clk       ),
+        .mem_write     ( we_mem    ),
+        .addr          ( addr      ),
+        .rdata         ( rdata_mem ),
+        .wdata         ( wdata     )
     );
 
     //------------------------------------------------------------------------

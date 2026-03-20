@@ -40,7 +40,7 @@ module sr_decode
         (op == `OP_STORE ) ? { {20{instr[31]}}, instr[31:25], instr[11:7] }:
         (op == `OP_BRANCH) ? { {20{instr[31]}}, instr[7], instr[30:25], instr[11:8], 1'b0} :
         (op == `OP_JUMP  ) ? { {12{instr[31]}}, instr[19:12], instr[20], instr[30:21], 1'b0} :
-        {32{1'bx}};
+        {32{`ERROR}};
 
     // always_comb
     // begin

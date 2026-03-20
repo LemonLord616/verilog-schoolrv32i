@@ -4,3 +4,6 @@
 [submodule "include/schoolRISCV"]
 	path = include/schoolRISCV
 	url = https://github.com/zhelnio/schoolRISCV
+[submodule "include/FPGA-UART"]
+	path = include/FPGA-UART
+	url = https://github.com/WangXuan95/FPGA-UART.git

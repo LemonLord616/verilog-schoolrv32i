@@ -20,8 +20,8 @@ module tb;
     logic [ 4:0] regAddr;  // debug access reg address
     wire  [31:0] regData;  // debug access reg data
     
-    wire [8:0] led_placeholder;
-    wire [8:0]  sw_placeholder;
+    wire [7:0] led_placeholder;
+    wire [7:0]  sw_placeholder;
     assign sw_placeholder = 8'b0;
 
     chip_top
@@ -30,7 +30,7 @@ module tb;
         .RAM_SIZE ( 64 ),
         .w_led    ( 8  ),
         .w_sw     ( 8  )
-    ) chip (
+    ) i_chip_top (
         .clk ( clk ),
         .rst ( rst ),
         .led ( led_placeholder ),
@@ -105,7 +105,7 @@ module tb;
         $display ("Final registers state:");
         for(int i = 0; i < 32; i++)
         begin
-            $display ("Reg x%02d, hex: %h, binary: %b", i, chip.cpu.rf.rf[i], chip.cpu.rf.rf[i]);
+            $display ("Reg x%02d, hex: %h, binary: %b", i, i_chip_top.i_cpu.i_rf.rf[i], i_chip_top.i_cpu.i_rf.rf[i]);
         end
     end
 

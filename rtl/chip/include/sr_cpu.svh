@@ -14,6 +14,9 @@
 `ifndef SR_CPU_SVH
 `define SR_CPU_SVH
 
+`define ERROR 1'bx // when simulate
+// `define ERROR 1'b0 // when synthesize
+
 // Multiplexers (Enums)
 // Opcode (used in instruction decoder)
 `define OP_LOAD   7'd3

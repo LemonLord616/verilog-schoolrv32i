@@ -56,8 +56,8 @@ module lab_top
 );
 
     // assign led        = '0;
-    // assign abcdefgh   = '0;
-    // assign digit      = '0;
+    assign abcdefgh   = '0;
+    assign digit      = '0;
     assign red        = '0;
     assign green      = '0;
     assign blue       = '0;
@@ -70,44 +70,48 @@ module lab_top
     
     chip_top
     # (
+        .clk_mhz ( clk ),
         .ROM_SIZE ( 64 ),
         .RAM_SIZE ( 64 ),
         .w_led    ( 8  ),
         .w_sw     ( 8  )
-    ) chip_top (
-        .clk ( slow_clk ),
+    ) i_chip_top (
+        // .clk ( slow_clk ),
+        .clk ( clk      ),
         .rst ( rst      ),
         .led ( led      ),
         .sw  ( sw       ),
+        .i_uart_rx ( uart_rx ),
+        .o_uart_tx ( uart_tx ),
         
         .debug_reg_addr ( debug_reg_addr ),
         .debug_reg_data ( debug_reg_data ),
         .debug_im_addr  ( debug_im_addr  ),
-        .debug_im_data  ( ),
+        .debug_im_data  ( )
     );
 
     assign debug_reg_addr = 5'd10;  // a0
 
-    localparam w_number = w_digit * 4;
+    // localparam w_number = w_digit * 4;
 
-    wire [w_number - 1:0] number
-        = w_number' ( key [0] ? debug_reg_data : debug_im_addr );
+    // wire [w_number - 1:0] number
+    //     = w_number' ( key [0] ? debug_reg_data : debug_im_addr );
 
-    seven_segment_display
-    # (
-        .w_digit  ( w_digit  ),
-        .clk_mhz  ( clk_mhz  )
-    )
-    display
-    (
-        .clk      ( clk      ),
-        .rst      ( rst      ),
+    // seven_segment_display
+    // # (
+    //     .w_digit  ( w_digit  ),
+    //     .clk_mhz  ( clk_mhz  )
+    // )
+    // display
+    // (
+    //     .clk      ( clk      ),
+    //     .rst      ( rst      ),
 
-        .number   ( number   ),
-        .dots     ( '0       ),
+    //     .number   ( number   ),
+    //     .dots     ( '0       ),
 
-        .abcdefgh ( abcdefgh ),
-        .digit    ( digit    )
-    );
+    //     .abcdefgh ( abcdefgh ),
+    //     .digit    ( digit    )
+    // );
 
 endmodule

@@ -7,7 +7,7 @@ module address_decoder
     input  [ 1:0] mem_write,
     input  [31:0] addr,
     output [11:0] dev_id,
-    output [ 1:0] sel,
+    output [`SEL_WIDTH:0] sel,
     output [ 1:0] we_mem,
     output        we_1,
     output        we_2

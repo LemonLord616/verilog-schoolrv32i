@@ -88,6 +88,13 @@ module board_specific_top
 
     wire [            23:0] mic;
     wire [            15:0] sound;
+    
+    // UART
+    wire uart_rx;
+    wire uart_tx;
+    
+    assign uart_rx = GPIO[w_gpio - 1]; // pin 35
+    assign GPIO[w_gpio - 2] = uart_tx; // pin 36
 
     //------------------------------------------------------------------------
 
@@ -114,7 +121,7 @@ module board_specific_top
         .w_green       (   w_green            ),
         .w_blue        (   w_blue             )
     )
-    i_common_top
+    i_lab_top
     (
         .clk           (   clk                ),
         .slow_clk      (   slow_clk           ),
@@ -135,8 +142,8 @@ module board_specific_top
         .green         (   green              ),
         .blue          (   blue               ),
 
-        .uart_rx       (                      ),
-        .uart_tx       (                      ),
+        .uart_rx       (   uart_rx            ),
+        .uart_tx       (   uart_rx            ),
 
         .mic           (   mic                ),
         .sound         (   sound              ),

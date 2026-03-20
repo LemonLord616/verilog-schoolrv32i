@@ -10,7 +10,9 @@ set_global_assignment -name SEARCH_PATH ../../../rtl/chip
 set_global_assignment -name SEARCH_PATH ../../../rtl/chip/include
 set_global_assignment -name SEARCH_PATH ../../../rtl/chip/core
 set_global_assignment -name SEARCH_PATH ../../../rtl/chip/peripherals
-set_global_assignment -name SEARCH_PATH "../../../include/basics-graphics-music/labs/common"
+set_global_assignment -name SEARCH_PATH ../../../include/basics-graphics-music/labs/common
+set_global_assignment -name SEARCH_PATH ../../../include/basics-graphics-music/peripherals
+set_global_assignment -name SEARCH_PATH ../../../include/FPGA-UART/RTL
 
 set_global_assignment -name SYSTEMVERILOG_FILE ../../../rtl/character_buffer.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../../../rtl/character_rom.sv

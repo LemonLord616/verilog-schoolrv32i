@@ -53,7 +53,7 @@ module sr_control
         wd_src        = `WD_ALU;
         alu_control   = `ALU_ADD;
         load_type     = `LOAD_W;
-        mem_write = `MW_NO;
+        mem_write     = `MW_NO;
         invalid_instr = 1'b0;
 
         casez ({ funct7, funct3, op })

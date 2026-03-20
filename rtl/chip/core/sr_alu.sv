@@ -33,7 +33,7 @@ module sr_alu
         (oper == `ALU_XOR ) ?  src_a ^   src_b :
         (oper == `ALU_SRA ) ?  src_a >>> src_b :
         (oper == `ALU_AND ) ?  src_a &   src_b :
-        {32{1'bx}};
+        {32{`ERROR}};
     // always_comb
     //     case (oper)
     //         default   : result =  src_a +   src_b;

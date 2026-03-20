@@ -44,7 +44,7 @@ module sr_cpu
 
     // instruction decode
 
-    sr_decode id
+    sr_decode i_decode
     (
         .instr   ( instr  ),
         .op      ( op     ),
@@ -69,7 +69,7 @@ module sr_cpu
 
     // control
 
-    sr_control control
+    sr_control i_control
     (
         .op             ( op            ),
         .funct3         ( funct3        ),
@@ -77,7 +77,7 @@ module sr_cpu
         .alu_zero       ( alu_zero      ),
         .pc_src         ( pc_src        ),
         .reg_write      ( reg_write     ),
-        .mem_write      ( mem_write ),
+        .mem_write      ( mem_write     ),
         .alu_src_a      ( alu_src_a     ),
         .alu_src_b      ( alu_src_b     ),
         .wd_src         ( wd_src        ),
@@ -92,7 +92,7 @@ module sr_cpu
     wire [31:0] src_a = alu_src_a == `ALUA_RD1 ? rd1 : pc;
     wire [31:0] src_b = alu_src_b == `ALUB_RD2 ? rd2 : imm;
 
-    sr_alu alu
+    sr_alu i_alu
     (
         .src_a      ( src_a        ),
         .src_b      ( src_b        ),
@@ -113,7 +113,7 @@ module sr_cpu
         (load_type == `LOAD_B) ? { {24{rdata[31]}}, rdata[ 7: 0] } :
         (load_type == `LOAD_HU) ? { 16'b0, rdata[15: 0] } :
         (load_type == `LOAD_BU) ? { 24'b0, rdata[ 7: 0] } :
-        {32{1'bx}};
+        {32{`ERROR}};
         
     // program counter
 
@@ -129,9 +129,9 @@ module sr_cpu
         (pc_src == `PC_BRANCH) ? pc_cond     :
         (pc_src == `PC_JAL   ) ? pc_cond     :
         (pc_src == `PC_JALR  ) ? pc_jump_reg :
-        {32{1'bx}};
+        {32{`ERROR}};
 
-    register_with_rst pc_r (clk, rst, pc_next, pc);
+    register_with_rst i_pc_r (clk, rst, pc_next, pc);
 
     // program memory access
 
@@ -150,9 +150,9 @@ module sr_cpu
         (wd_src == `WD_IMM    ) ? imm        :
         (wd_src == `WD_PCPLUS4) ? pc_plus_4  :
         (wd_src == `WD_MEM    ) ? load_data  :
-        {32{1'bx}};
+        {32{`ERROR}};
 
-    sr_register_file rf
+    sr_register_file i_rf
     (
         .clk        ( clk            ),
         .a1         ( rs1            ),

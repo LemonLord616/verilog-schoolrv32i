@@ -6,9 +6,10 @@ set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name SEARCH_PATH .
 set_global_assignment -name SEARCH_PATH ../../..
 set_global_assignment -name SEARCH_PATH ../../../rtl
-set_global_assignment -name SEARCH_PATH ../../../rtl/include
-set_global_assignment -name SEARCH_PATH ../../../rtl/core
-set_global_assignment -name SEARCH_PATH ../../../rtl/peripherals
+set_global_assignment -name SEARCH_PATH ../../../rtl/chip
+set_global_assignment -name SEARCH_PATH ../../../rtl/chip/include
+set_global_assignment -name SEARCH_PATH ../../../rtl/chip/core
+set_global_assignment -name SEARCH_PATH ../../../rtl/chip/peripherals
 set_global_assignment -name SEARCH_PATH "../../../include/basics-graphics-music/labs/common"
 
 set_global_assignment -name SYSTEMVERILOG_FILE ../../../rtl/character_buffer.sv

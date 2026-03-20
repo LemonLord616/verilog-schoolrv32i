@@ -19,43 +19,27 @@ module tb;
 
     logic [ 4:0] regAddr;  // debug access reg address
     wire  [31:0] regData;  // debug access reg data
+    
+    wire [8:0] led_placeholder;
+    wire [8:0]  sw_placeholder;
+    assign sw_placeholder = 8'b0;
 
-    logic [ 1:0] mem_write;
-    logic [31:0] addr;
-    logic [31:0] rdata;
-    logic [31:0] wdata;
-
-    sr_cpu cpu
-    (
-        .clk            ( clk     ),
-        .rst            ( rst     ),
-
-        .instr_addr     ( imAddr  ),
-        .instr_data     ( imData  ),
-        .invalid_instr  (         ),
-
-        .mem_write      ( mem_write ),
-        .addr           ( addr   ),
-        .rdata          ( rdata   ),
-        .wdata          ( wdata   ),
-
+    chip_top
+    #(
+        .ROM_SIZE ( 64 ),
+        .RAM_SIZE ( 64 ),
+        .w_led    ( 8  ),
+        .w_sw     ( 8  )
+    ) chip (
+        .clk ( clk ),
+        .rst ( rst ),
+        .led ( led_placeholder ),
+        .sw  (  sw_placeholder ),
+        
         .debug_reg_addr ( regAddr ),
-        .debug_reg_data ( regData )
-    );
-
-    instruction_rom # (.SIZE (1024)) rom
-    (
-        .addr  ( imAddr ),
-        .rdata ( imData )
-    );
-
-    data_ram # (.SIZE (1024)) i_ram
-    (
-        .clk          ( clk ),
-        .mem_write    ( mem_write ),
-        .addr         ( addr ),
-        .rdata        ( rdata ),
-        .wdata        ( wdata )
+        .debug_reg_data ( regData ),
+        .debug_im_addr  ( imAddr  ),
+        .debug_im_data  ( imData  )
     );
 
     //------------------------------------------------------------------------
@@ -121,7 +105,7 @@ module tb;
         $display ("Final registers state:");
         for(int i = 0; i < 32; i++)
         begin
-            $display ("Reg x%02d, hex: %h, binary: %b", i, cpu.rf.rf[i], cpu.rf.rf[i]);
+            $display ("Reg x%02d, hex: %h, binary: %b", i, chip.cpu.rf.rf[i], chip.cpu.rf.rf[i]);
         end
     end
 

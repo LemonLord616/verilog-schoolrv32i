@@ -1,5 +1,3 @@
-`include "lab_top.svh"
-
 module lab_top
 # (
     parameter  clk_mhz       = 50,
@@ -57,119 +55,43 @@ module lab_top
     inout        [w_gpio  - 1:0] gpio
 );
 
-    //------------------------------------------------------------------------
-
-       // assign led        = '0;
+    // assign led        = '0;
     // assign abcdefgh   = '0;
     // assign digit      = '0;
-       assign red        = '0;
-       assign green      = '0;
-       assign blue       = '0;
-       assign sound      = '0;
-       assign uart_tx    = '1;
+    assign red        = '0;
+    assign green      = '0;
+    assign blue       = '0;
+    assign sound      = '0;
+    assign uart_tx    = '1;
 
-    //------------------------------------------------------------------------
-
-    // rom
-    wire [ 4:0] regAddr;  // debug access reg address
-    wire [31:0] regData;  // debug access reg data
-    wire [31:0] imAddr;   // instruction memory address
-    wire [31:0] imData;   // instruction memory data
-
-    // ram
-    wire [ 1:0] mem_write; // data write on mem_write (see sr_cpu.svh MW_... constants)
-    wire [31:0] addr;      // r/w data address
-    wire [31:0] rdata;     // read data 
-    wire [31:0] wdata;     // write data
-
-    sr_cpu cpu
-    (
-        .clk            ( slow_clk ),
-        .rst            ( rst      ),
-
-        .instr_addr     ( imAddr ),
-        .instr_data     ( imData ),
-
-        .addr           ( addr   ),
-        .rdata          ( rdata  ),
-        .wdata          ( wdata  ),
-        .mem_write      ( mem_write ),
+    wire  [4:0] debug_reg_addr;
+    wire [31:0] debug_reg_data;
+    wire [31:0] debug_im_addr;
+    
+    chip_top
+    # (
+        .ROM_SIZE ( 64 ),
+        .RAM_SIZE ( 64 ),
+        .w_led    ( 8  ),
+        .w_sw     ( 8  )
+    ) chip_top (
+        .clk ( slow_clk ),
+        .rst ( rst      ),
+        .led ( led      ),
+        .sw  ( sw       ),
         
-        .invalid_instr  (  ),
-
-        .debug_reg_addr ( regAddr ),
-        .debug_reg_data ( regData )
-    );
-    
-    wire [1:0] sel;
-    wire [1:0] we_mem; // ram
-    wire [1:0] we_1, we_2; // devices
-
-    wire [31:0] rdata_mem; // ram
-    wire [31:0] rdata_1, rdata_2; // devices
-
-    assign rdata_1 = {32{1'b1}}; // leds do not return anything
-    
-    assign rdata =
-        (sel == `SEL_MEM ) ? rdata_mem :
-        (sel == `SEL_DEV1) ? rdata_1 :
-        (sel == `SEL_DEV2) ? rdata_2 :
-        {32{1'b1}};
-    
-    address_decoder addr_decoder
-    (
-        .mem_write ( mem_write ),
-        .addr      ( addr      ),
-        .sel       ( sel       ),
-        .we_mem    ( we_mem    ),
-        .we_1      ( we_1      ),
-        .we_2      ( we_2      )
+        .debug_reg_addr ( debug_reg_addr ),
+        .debug_reg_data ( debug_reg_data ),
+        .debug_im_addr  ( debug_im_addr  ),
+        .debug_im_data  ( ),
     );
 
-    instruction_rom # (.SIZE (64)) rom
-    (
-        .addr    ( imAddr   ),
-        .rdata   ( imData   )
-    );
-
-    data_ram # (.SIZE (64)) ram
-    (
-        .clk           ( clk       ),
-        .mem_write     ( we_mem    ),
-        .addr          ( addr      ),
-        .rdata         ( rdata_mem ),
-        .wdata         ( wdata     )
-    );
-    
-    leds # (.w_led (w_led)) leds
-    (
-        .clk          ( clk   ),
-        .addr         ( addr  ),
-        .write_enable ( we_1  ),
-        .wdata        ( wdata ) ,
-    
-        .led          ( led   ),
-        .invalid_addr ()
-    );
-    
-    switches # (.w_sw (w_sw)) switches
-    (
-        .clk   ( clk     ),
-        .addr  ( addr    ),
-        .rdata ( rdata_2 ),
-
-        .sw    ( sw      ),
-        .invalid_addr ()
-    );
-
-    //------------------------------------------------------------------------
-
-    assign regAddr = 5'd10;  // a0
+    assign debug_reg_addr = 5'd10;  // a0
 
     localparam w_number = w_digit * 4;
 
     wire [w_number - 1:0] number
-        = w_number' ( key [0] ? regData : imAddr );
+        = w_number' ( key [0] ? debug_reg_data : debug_im_addr );
 
     seven_segment_display
     # (

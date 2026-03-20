@@ -93,7 +93,7 @@ module board_specific_top
 
     wire slow_clk;
 
-    slow_clk_gen # (.fast_clk_mhz (clk_mhz), .slow_clk_hz (1))
+    slow_clk_gen # (.fast_clk_mhz (clk_mhz), .slow_clk_hz (4))
     i_slow_clk_gen (.slow_clk (slow_clk), .*);
 
     //------------------------------------------------------------------------

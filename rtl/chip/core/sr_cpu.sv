@@ -11,7 +11,9 @@
 //  Modified in 2026 by Marat Mestnikov
 //
 
+`include "chip_top.svh"
 `include "sr_cpu.svh"
+`include "memory.svh"
 
 module sr_cpu
 (
@@ -21,10 +23,12 @@ module sr_cpu
     output  [31:0]  instr_addr,        // instruction memory address
     input   [31:0]  instr_data,        // instruction memory data
 
-    output  [ 1:0]  mem_write,         // data write on mem_write (see sr_cpu.svh MW_... constants)
-    output  [31:0]  addr,              // r/w ram address
-    input   [31:0]  rdata,             // read ram data
-    output  [31:0]  wdata,             // write ram data
+    output          mem_op,
+    output  [ 1:0]  mem_size,
+    output          mem_enable,
+    output  [31:0]  addr,              // r/w address
+    input   [31:0]  rdata,             // read data
+    output  [31:0]  wdata,             // write data
 
     output          invalid_instr,
 
@@ -65,7 +69,7 @@ module sr_cpu
     wire       alu_src_b;
     wire [1:0] wd_src;
     wire [3:0] alu_control;
-    wire [2:0] load_type;
+    wire       mem_signed;
 
     // control
 
@@ -77,12 +81,14 @@ module sr_cpu
         .alu_zero       ( alu_zero      ),
         .pc_src         ( pc_src        ),
         .reg_write      ( reg_write     ),
-        .mem_write      ( mem_write     ),
+        .mem_op         ( mem_op        ),
+        .mem_size       ( mem_size      ),
+        .mem_enable     ( mem_enable    ),
+        .mem_signed     ( mem_signed    ),
         .alu_src_a      ( alu_src_a     ),
         .alu_src_b      ( alu_src_b     ),
         .wd_src         ( wd_src        ),
         .alu_control    ( alu_control   ),
-        .load_type      ( load_type     ),
         .invalid_instr  ( invalid_instr )
     );
 
@@ -108,13 +114,13 @@ module sr_cpu
     wire [31:0] load_data;
 
     assign load_data =
-        (load_type == `LOAD_W) ? rdata :
-        (load_type == `LOAD_H) ? { {16{rdata[31]}}, rdata[15: 0] } :
-        (load_type == `LOAD_B) ? { {24{rdata[31]}}, rdata[ 7: 0] } :
-        (load_type == `LOAD_HU) ? { 16'b0, rdata[15: 0] } :
-        (load_type == `LOAD_BU) ? { 24'b0, rdata[ 7: 0] } :
+        (mem_size == `MEM_SIZE_W) ? rdata :
+        (mem_size == `MEM_SIZE_H && mem_signed) ? { {16{rdata[15]}}, rdata[15: 0] } :
+        (mem_size == `MEM_SIZE_B && mem_signed) ? { {24{rdata[7]}}, rdata[ 7: 0] } :
+        (mem_size == `MEM_SIZE_H && !mem_signed) ? { 16'b0, rdata[15: 0] } :
+        (mem_size == `MEM_SIZE_B && !mem_signed) ? { 24'b0, rdata[ 7: 0] } :
         {32{`ERROR}};
-        
+
     // program counter
 
     wire [31:0] pc;

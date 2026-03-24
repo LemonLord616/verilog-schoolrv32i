@@ -38,7 +38,7 @@ $(SIM_OUT_DIR):
 
 sim-build: $(SIM_OUT_DIR)
 	iverilog -g2012 -o $(SIM_OUT_DIR)/sim.out -I ./rtl/chip/include -I include/basics-graphics-music/labs/common \
-		include/basics-graphics-music/labs/common/*sv include/FPGA-UART/RTL/*.sv \
+		include/basics-graphics-music/labs/common/*sv include/FPGA-UART/RTL/*.v \
 		./rtl/*.sv ./rtl/chip/*.sv ./rtl/chip/core/*.sv ./rtl/chip/peripherals/*.sv  \
 		./sim/icarus/tb.sv # >> $(SIM_OUT_DIR)/log.txt 2>&1
 

@@ -37,10 +37,12 @@ module chip_top
     assign debug_im_data  = im_data;
 
     // ram
-    wire [ 1:0] mem_write; // data write on mem_write (see sr_cpu.svh MW_... constants)
     wire [31:0] addr;      // r/w data address
     wire [31:0] rdata;     // read data 
     wire [31:0] wdata;     // write data
+    wire        mem_op;
+    wire [ 1:0] mem_size;
+    wire        mem_enable;
 
     sr_cpu i_cpu
     (
@@ -53,7 +55,9 @@ module chip_top
         .addr           ( addr   ),
         .rdata          ( rdata  ),
         .wdata          ( wdata  ),
-        .mem_write      ( mem_write ),
+        .mem_op         ( mem_op ),
+        .mem_size       ( mem_size   ),
+        .mem_enable     ( mem_enable ),
         
         .invalid_instr  (  ),
 
@@ -61,9 +65,13 @@ module chip_top
         .debug_reg_data ( reg_data )
     );
     
-    wire [`SEL_WIDTH: 0] sel;
-    wire [1:0] we_mem; // ram
-    wire we_1, we_2, we_3; // devices
+    wire [`SEL_WIDTH-1: 0] sel;
+    // write enable
+    wire write_mem; // ram
+    wire write_1, write_2, write_3; // devices
+    // read enable
+    wire read_mem;
+    wire read_1, read_2, read_3;
 
     wire [31:0] rdata_mem; // ram
     wire [31:0] rdata_1, rdata_2, rdata_3; // devices
@@ -81,13 +89,15 @@ module chip_top
     
     address_decoder i_address_decoder
     (
-        .mem_write ( mem_write ),
-        .addr      ( addr      ),
-        .dev_id    ( dev_id    ),
-        .sel       ( sel       ),
-        .we_mem    ( we_mem    ),
-        .we_1      ( we_1      ),
-        .we_2      ( we_2      )
+        .mem_op     ( mem_op     ),
+        .mem_enable ( mem_enable ),
+        .addr       ( addr       ),
+        .dev_id     ( dev_id     ),
+        .sel        ( sel        ),
+        .write_mem  ( write_mem  ),
+        .write_1    ( write_1    ),
+        .write_3    ( write_3    ),
+        .read_3     ( read_3     )
     );
 
     instruction_rom # (.SIZE (ROM_SIZE)) i_rom
@@ -98,21 +108,22 @@ module chip_top
 
     data_ram # (.SIZE (RAM_SIZE)) i_ram
     (
-        .clk           ( clk       ),
-        .mem_write     ( we_mem    ),
-        .addr          ( addr      ),
-        .rdata         ( rdata_mem ),
-        .wdata         ( wdata     )
+        .clk        ( clk       ),
+        .write_mem  ( write_mem ),
+        .mem_size   ( mem_size  ),
+        .addr       ( addr      ),
+        .rdata      ( rdata_mem ),
+        .wdata      ( wdata     )
     );
     
     leds # (.w_led (w_led)) i_leds
     (
-        .clk          ( clk   ),
-        .dev_id       ( dev_id ),
-        .write_enable ( we_1   ),
-        .wdata        ( wdata  ) ,
+        .clk          ( clk     ),
+        .dev_id       ( dev_id  ),
+        .write_enable ( write_1 ),
+        .wdata        ( wdata   ) ,
     
-        .led          ( led    )
+        .led          ( led     )
     );
     
     switches # (.w_sw (w_sw)) i_switches
@@ -124,17 +135,19 @@ module chip_top
         .sw     ( sw      )
     );
     
-    uart # ( .clk_mhz(50) ) i_uart
+    uart # ( .clk_mhz(clk_mhz) ) i_uart
     (
-        .clk          ( clk    ),
-        .rst          ( rst    ),
-        .write_enable ( we_3   ),
-        .dev_id       ( dev_id ),
-        .rdata        ( rdata  ),
-        .wdata        ( wdata  ),
+        .clk          ( clk       ),
+        .rst          ( rst       ),
+        .write_enable ( write_3   ),
+        .read_enable  ( read_3    ),
+        .mem_size     ( mem_size  ),
+        .dev_id       ( dev_id    ),
+        .rdata        ( rdata_3   ),
+        .wdata        ( wdata     ),
 
-        .i_uart_rx ( i_uart_rx ),
-        .o_uart_tx ( o_uart_tx )
+        .i_uart_rx ( i_uart_rx  ),
+        .o_uart_tx ( o_uart_tx  )
     );
 
 endmodule

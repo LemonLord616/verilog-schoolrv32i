@@ -12,6 +12,7 @@
 //
 
 `include "sr_cpu.svh"
+`include "memory.svh"
 
 //
 // Keep in mind that testbench will not allocate much memory
@@ -22,13 +23,14 @@ module data_ram
     parameter SIZE = 1024
 )
 (
-    input         clk,
+    input          clk,
 
-    input  [ 1:0] mem_write,
-    input  [31:0] addr,
-    input  [31:0] wdata,
+    input          write_mem,
+    input  [ 1: 0] mem_size,
+    input  [31: 0] addr,
+    input  [31: 0] wdata,
 
-    output [31:0] rdata
+    output [31: 0] rdata
 );
     logic [7:0] ram [0:SIZE - 1]; // single byte-addressable address space
     
@@ -36,21 +38,23 @@ module data_ram
     // initial $readmemh ("./rtl/data.hex", ram);
 
     always_ff @( posedge clk ) begin
-        case (mem_write)
-            `MW_NO: ;          // nothing
-            `MW_W: begin       // word
-                dump_debug     <= wdata;
-                ram[addr + 3] <= wdata[31:24];        
-                ram[addr + 2] <= wdata[23:16];        
-                ram[addr + 1] <= wdata[15: 8];        
-                ram[addr]     <= wdata[ 7: 0];        
-            end
-            `MW_H: begin       // half word
-                ram[addr + 1] <= wdata[15: 8];
-                ram[addr]     <= wdata[ 7: 0];
-            end
-            `MW_B: ram[addr] <= wdata[ 7: 0]; // byte
-        endcase
+        if (write_mem) begin
+            case (mem_size)
+                `MEM_SIZE_W: begin       // word
+                    dump_debug     <= wdata;
+                    ram[addr + 3] <= wdata[31:24];        
+                    ram[addr + 2] <= wdata[23:16];        
+                    ram[addr + 1] <= wdata[15: 8];        
+                    ram[addr]     <= wdata[ 7: 0];        
+                end
+                `MEM_SIZE_H: begin       // half word
+                    ram[addr + 1] <= wdata[15: 8];
+                    ram[addr]     <= wdata[ 7: 0];
+                end
+                `MEM_SIZE_B: ram[addr] <= wdata[ 7: 0]; // byte
+                default: ram[addr] <= wdata[ 7: 0];
+            endcase
+        end
     end
 
     assign rdata = { ram [addr + 3], ram [addr + 2], ram [addr + 1], ram [addr] };

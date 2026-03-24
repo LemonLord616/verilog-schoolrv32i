@@ -11,6 +11,7 @@
 //  Modified in 2026 by Marat Mestnikov
 // 
 
+`include "chip_top.svh"
 `include "sr_cpu.svh"
 
 module sr_decode

@@ -62,7 +62,7 @@ module lab_top
     assign green      = '0;
     assign blue       = '0;
     assign sound      = '0;
-    assign uart_tx    = '1;
+    // assign uart_tx    = '1;
 
     wire  [4:0] debug_reg_addr;
     wire [31:0] debug_reg_data;
@@ -70,7 +70,7 @@ module lab_top
     
     chip_top
     # (
-        .clk_mhz ( clk ),
+        .clk_mhz ( clk_mhz ),
         .ROM_SIZE ( 64 ),
         .RAM_SIZE ( 64 ),
         .w_led    ( 8  ),

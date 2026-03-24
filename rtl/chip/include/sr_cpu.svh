@@ -14,9 +14,6 @@
 `ifndef SR_CPU_SVH
 `define SR_CPU_SVH
 
-`define ERROR 1'bx // when simulate
-// `define ERROR 1'b0 // when synthesize
-
 // Multiplexers (Enums)
 // Opcode (used in instruction decoder)
 `define OP_LOAD   7'd3
@@ -51,17 +48,6 @@
 // `define WD_IMM_U    2'b10 // lui immediate
 `define WD_IMM      2'd2
 `define WD_MEM      2'd3 // load instr
-// mem_write
-`define MW_NO       2'd0 // no write
-`define MW_W        2'd1 // word
-`define MW_H        2'd2 // half word
-`define MW_B        2'd3 // byte
-// loadType (for sign/zero extend)
-`define LOAD_W      3'b000
-`define LOAD_H      3'b001
-`define LOAD_B      3'b010
-`define LOAD_HU     3'b011
-`define LOAD_BU     3'b100
 
 // ALU commands
 

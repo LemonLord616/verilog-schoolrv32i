@@ -143,7 +143,7 @@ module board_specific_top
         .blue          (   blue               ),
 
         .uart_rx       (   uart_rx            ),
-        .uart_tx       (   uart_rx            ),
+        .uart_tx       (   uart_tx            ),
 
         .mic           (   mic                ),
         .sound         (   sound              ),
